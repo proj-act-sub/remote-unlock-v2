@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base theme required by AndroidManifest; Compose overrides at runtime -->
-    <style name="Theme.RemoteUnlock" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.RemoteUnlock" parent="Theme.AppCompat.DayNight.NoActionBar" />
 </resources>

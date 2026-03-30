@@ -17,7 +17,7 @@ import java.util.Base64
  *  - completes a **pairing** (first connect with a one-time token), or
  *  - sends an **unlock** command (subsequent connects after pairing).
  */
-class TunnelClient private constructor(
+class TunnelClient(
     private val host: String,
     private val port: Int,
     private val responderStaticPub: ByteArray,
@@ -71,7 +71,8 @@ class TunnelClient private constructor(
             val session = performHandshake(inp, out)
 
             // Send unlock command
-            val ts = System.currentTimeMillis()\n            val cmd = "{\"cmd\":\"unlock\",\"ts\":$ts}"
+            val ts = System.currentTimeMillis()
+            val cmd = "{\"cmd\":\"unlock\",\"ts\":$ts}"
             val encCmd = session.encryptAsInitiator(cmd.toByteArray())
             writeFramed(out, encCmd)
 

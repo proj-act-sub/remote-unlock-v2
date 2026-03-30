@@ -6,22 +6,25 @@ plugins {
 }
 
 android {
-    namespace = "com.remoteunlock"
-    compileSdk = 36          // Android 16 (2026 target)
+    namespace   = "com.remoteunlock.android"
+    compileSdk  = 35
 
     defaultConfig {
-        applicationId = "com.remoteunlock"
-        minSdk = 31           // Android 12 — X25519 AndroidKeyStore + robust BiometricPrompt
-        targetSdk = 36
-        versionCode = 7
-        versionName = "7.0.0"
+        applicationId   = "com.remoteunlock.android"
+        minSdk          = 29
+        targetSdk       = 35
+        versionCode     = 1
+        versionName     = "2.0"
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = true
+            isMinifyEnabled   = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 
@@ -29,54 +32,57 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
-    buildFeatures { compose = true }
+
+    kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
+    buildFeatures {
+        compose = true
+    }
+
+    // Suppress "duplicate class" between bcprov and Android's stripped BC
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            // BouncyCastle ships some files that clash with Android's built-in provider
+            excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
+        }
+    }
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
+    implementation(libs.core.ktx)
+    implementation(libs.lifecycle.runtime.ktx)
+    implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.activity.compose)
+    implementation(libs.navigation.compose)
+    implementation(libs.appcompat)
 
-    // Compose BOM (Bill of Materials — pins all compose versions)
-    val composeBom = platform(libs.androidx.compose.bom)
-    implementation(composeBom)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.graphics)
+    implementation(libs.compose.ui.tooling.prev)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.icons.extended)
+    debugImplementation(libs.compose.ui.tooling)
 
-    // Navigation
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.biometric)
 
-    // Lifecycle / ViewModel
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.camerax.core)
+    implementation(libs.camerax.camera2)
+    implementation(libs.camerax.lifecycle)
+    implementation(libs.camerax.view)
+    implementation(libs.mlkit.barcode)
+    implementation(libs.accompanist.permissions)
+    implementation("com.appmattus.crypto:cryptohash:0.10.1")
+    // Crypto: X25519, ChaCha20-Poly1305, BLAKE3
+    implementation(libs.bouncycastle)
 
-    // Biometric — standard BiometricPrompt API
-    implementation(libs.androidx.biometric)
-
-    // Camera (for QR scanning)
-    implementation(libs.androidx.camera.camera2)
-    implementation(libs.androidx.camera.lifecycle)
-    implementation(libs.androidx.camera.view)
-
-    // ML Kit barcode scanning
-    implementation(libs.mlkit.barcode.scanning)
-
-    // DataStore (peer storage)
-    implementation(libs.androidx.datastore.preferences)
-
-    // Kotlin Serialization (JSON)
+    implementation(libs.datastore)
     implementation(libs.kotlinx.serialization.json)
-
-    // Kotlin Coroutines
     implementation(libs.kotlinx.coroutines.android)
-
-    // BLAKE3 — cryptohash pure-Kotlin implementation
-    implementation(libs.appmattus.cryptohash)
-
-    // BouncyCastle for ChaCha20-Poly1305 on older paths
-    implementation(libs.bouncycastle.bcprov)
-
-    debugImplementation(libs.androidx.compose.ui.tooling)
 }

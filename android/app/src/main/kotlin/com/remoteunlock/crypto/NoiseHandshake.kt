@@ -35,25 +35,17 @@ class NoiseHandshake(
     }
 
     // ── BLAKE3 helpers ────────────────────────────────────────────────────────
-
     private fun blake3Hash(data: ByteArray): ByteArray =
-        Algorithm.Blake3_256.createDigest().apply { update(data) }.digest()
+        Algorithm.Blake3.create().apply { update(data) }.digest()
 
     private fun blake3Keyed(key: ByteArray, data: ByteArray): ByteArray {
-        // BLAKE3 keyed hash: requires exactly 32-byte key
-        val digest = Algorithm.Blake3_256.createDigest()
-        // Initialize with key context — use derive-key mode via domain separation
-        // (cryptohash's Blake3_256 supports a key parameter as initial state)
-        return Algorithm.Blake3_256.createDigest().apply {
-            // Workaround for API: XOR-based keying simulation using HKDF pattern
-            // For full keyed-hash, use Algorithm.Blake3_256_Keyed if available
-            update(key)
+        return Algorithm.Blake3.create(key = key).apply {
             update(data)
         }.digest()
     }
 
     private fun mixHash(h: ByteArray, data: ByteArray): ByteArray {
-        val digest = Algorithm.Blake3_256.createDigest()
+        val digest = Algorithm.Blake3.create() // Changed to .create()
         digest.update(h)
         digest.update(data)
         return digest.digest()
