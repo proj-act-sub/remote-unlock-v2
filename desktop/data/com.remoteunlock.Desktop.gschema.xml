@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="com.remoteunlock.Desktop" path="/com/remoteunlock/Desktop/">
+    <key name="device-alias" type="s">
+      <default>'Linux PC'</default>
+      <summary>Display name shown in the QR code</summary>
+    </key>
+    <key name="listen-port" type="i">
+      <default>51820</default>
+      <summary>TCP port for the Noise tunnel server</summary>
+    </key>
+  </schema>
+</schemalist>

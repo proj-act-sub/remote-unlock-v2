@@ -1,0 +1,50 @@
+app-id: com.remoteunlock.Desktop
+runtime: org.gnome.Platform
+runtime-version: '50'
+sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+
+command: remoteunlock
+finish-args:
+  # Wayland display
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  # Network access for the Noise tunnel server
+  - --share=network
+  # D-Bus access: GNOME ScreenSaver + secret service
+  - --talk-name=org.gnome.ScreenSaver
+  - --talk-name=org.freedesktop.secrets
+  # Background portal
+  - --talk-name=org.freedesktop.portal.Desktop
+  # Persist key files
+  - --filesystem=xdg-config/remoteunlock:create
+
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin
+  env:
+    CARGO_HOME: /run/build/remoteunlock-desktop/cargo
+    RUST_BACKTRACE: '1'
+
+modules:
+  - name: remoteunlock-desktop
+    buildsystem: simple
+    build-commands:
+      - cargo build --release --offline
+      - install -Dm755 target/release/remoteunlock -t /app/bin/
+      - install -Dm644 data/com.remoteunlock.Desktop.metainfo.xml
+          -t /app/share/metainfo/
+      - install -Dm644 data/com.remoteunlock.Desktop.gschema.xml
+          -t /app/share/glib-2.0/schemas/
+      - glib-compile-schemas /app/share/glib-2.0/schemas/
+    sources:
+      - type: dir
+        path: .
+      - type: file
+        path: Cargo.lock
+        dest-filename: Cargo.lock
+      # Vendor directory produced by: cargo vendor
+      - type: dir
+        path: vendor
+        dest: vendor

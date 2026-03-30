@@ -1,0 +1,60 @@
+[package]
+name = "remoteunlock-desktop"
+version = "7.0.0"
+edition = "2021"
+rust-version = "1.83"
+
+[[bin]]
+name = "remoteunlock"
+path = "src/main.rs"
+
+[dependencies]
+# GTK / GNOME stack — libadwaita 0.9 wraps libadwaita 1.7 / GTK 4.16+
+gtk4         = { version = "0.11.0", features = ["v4_16"] }
+libadwaita   = { version = "0.9",  features = ["v1_7"] }
+glib         = "0.21"
+gio          = "0.21"
+gdk-pixbuf   = "0.21"
+subtle = "2"
+gdk4 = "0.11"      # or 0.10, matching your gtk4 version
+dirs = "5"
+hex = "0.4"
+# Async runtime
+tokio        = { version = "1", features = ["full"] }
+
+# Crypto — WireGuard-style Noise IK + BLAKE3
+x25519-dalek = { version = "2", features = ["static_secrets"] }
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+blake3       = "1"
+chacha20poly1305 = { version = "0.10", features = [] }
+rand         = "0.8"
+rand_core    = { version = "0.6", features = ["getrandom"] }
+zeroize      = { version = "1", features = ["derive"] }
+
+# QR generation
+qrcode       = "0.14"
+image        = { version = "0.25", default-features = false, features = ["png"] }
+
+# Serialisation / encoding
+serde        = { version = "1", features = ["derive"] }
+serde_json   = "1"
+base64       = "0.22"
+
+# D-Bus (Flatpak portals + GNOME D-Bus unlock)
+zbus         = { version = "4", features = ["tokio"] }
+
+# Key storage (libsecret / GNOME Keyring)
+secret-service = { version = "3", features = ["rt-tokio-crypto-rust"] }
+
+# Networking helpers
+pnet         = "0.35"     # interface enumeration for hotspot IP
+
+# Logging / errors
+tracing      = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+anyhow       = "1"
+thiserror    = "1"
+once_cell    = "1"
+
+[build-dependencies]
+glib-build-tools = "0.21"
